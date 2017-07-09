@@ -1,0 +1,212 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Media;
+
+
+namespace countdown_timer_1
+{
+    public partial class FormTimer : Form
+    {
+        public FormTimer()
+        {
+            InitializeComponent();
+            // とりあえずマウスポインタの場所に表示
+            this.DesktopLocation = new Point(System.Windows.Forms.Cursor.Position.X,
+                                             System.Windows.Forms.Cursor.Position.Y);
+            //停止ボタン無効
+            this.btn_stop.Enabled = false;
+            //フォームの最大化ボタン非表示
+            this.MaximizeBox = !this.MaximizeBox;
+        }
+
+        //計測時間:秒
+        int sec = 0;
+
+        /// <summary>
+        /// 時間表示
+        /// </summary>
+        private void viewtime()
+        {
+            stLabel1.Text = "" + sec / 36000 % 10 + sec / 3600 % 10 +
+                           ":" + sec / 600 % 6 + sec / 60 % 10 +
+                           ":" + sec / 10 % 6 + sec % 10;
+        }
+
+        /// <summary>
+        /// タイマー部
+        /// </summary>
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            //カウントダウン
+            sec--;
+
+            if (0 == sec)
+            {
+                sttimer.Enabled = false;
+                
+                //// 終了時にbeep
+                //SystemSounds.Beep.Play();
+
+                PlaySound("C:\\windows\\Media\\Alarm01.wav");
+                this.Activate();
+            }
+            viewtime();
+        }
+
+#region 時刻設定ボタン
+
+        // 秒、分、時
+        private void btn_1sec_Click(object sender, EventArgs e)
+        {
+            sec += 1;
+            viewtime();
+        }
+
+        private void btn_1min_Click(object sender, EventArgs e)
+        {
+            sec += 60;
+            viewtime();
+        }
+
+        private void btn_1hour_Click(object sender, EventArgs e)
+        {
+            sec += 3600;
+            if (sec >= 360000)
+            {
+                sec = 0;
+            }
+            viewtime();
+        }
+
+        private void btn_10sec_Click(object sender, EventArgs e)
+        {
+            sec += 10;
+            viewtime();
+        }
+
+        private void btn_10min_Click(object sender, EventArgs e)
+        {
+            sec += 600;
+            viewtime();
+        }
+
+        private void btn_10hour_Click(object sender, EventArgs e)
+        {
+            sec += 36000;
+            if (sec >= 360000)
+            {
+                sec = 0;
+            }
+            viewtime();
+        }
+
+#endregion
+
+#region 制御ボタン
+
+        private void btn_start_Click(object sender, EventArgs e)
+        {
+            if (0 == sec)
+            {
+                return;
+            }
+            //タイマー有効
+            sttimer.Enabled = true;
+            //ボタン有効
+            this.btn_stop.Enabled = true;
+            //ボタン無効
+            this.btn_start.Enabled = false;
+            this.btn_1sec.Enabled = false;
+            this.btn_1min.Enabled = false;
+            this.btn_1hour.Enabled = false;
+            this.btn_10sec.Enabled = false;
+            this.btn_10min.Enabled = false;
+            this.btn_10hour.Enabled = false;
+            this.btn_clear.Enabled = false;
+        }
+
+        private void btn_stop_Click(object sender, EventArgs e)
+        {
+            //タイマー無効
+            sttimer.Enabled = false;
+            //ボタン無効
+            this.btn_stop.Enabled = false;
+            //ボタン有効
+            this.btn_start.Enabled = true;
+            this.btn_1sec.Enabled = true;
+            this.btn_1min.Enabled = true;
+            this.btn_1hour.Enabled = true;
+            this.btn_10sec.Enabled = true;
+            this.btn_10min.Enabled = true;
+            this.btn_10hour.Enabled = true;
+            this.btn_clear.Enabled = true;
+            //音停止
+            StopSound();
+        }
+
+        private void btn_reset_Click(object sender, EventArgs e)
+        {
+            stLabel1.Text = "00:00:00";
+            sec = 0;
+        }
+
+#endregion
+
+        private void TopMost_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //クリック毎にフォームを「常に手前」または「解除」します。
+            this.TopMost = !this.TopMost;
+        }
+
+
+#region WAVE再生
+
+        /// <summary>
+        /// wavファイルの再生
+        /// </summary>
+        private void PlaySound(string waveFile)
+        {
+            //再生されているときは止める
+            if (player != null)
+            {
+                StopSound();
+            }
+
+            //読込
+            player = new System.Media.SoundPlayer(waveFile);
+            
+            //非同期再生する
+            player.Play();
+
+            ////ループ再生
+            //player.PlayLooping();
+
+            ////最後まで再生
+            //player.PlaySync();
+        }
+
+        /// <summary>
+        /// wavファイルの停止
+        /// </summary>
+        private void StopSound()
+        {
+            if (player != null)
+            {
+                player.Stop();
+                player.Dispose();
+                player = null;
+            }
+        }
+
+#endregion
+
+    }
+
+}
